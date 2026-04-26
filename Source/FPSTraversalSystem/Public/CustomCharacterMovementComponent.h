@@ -18,6 +18,9 @@ class FPSTRAVERSALSYSTEM_API UCustomCharacterMovementComponent : public UCharact
 protected:
 	ETraversalMode CurrentTraversalMode = ETraversalMode::Walk;
 	ETraversalMode NextTraversalMode = ETraversalMode::Walk;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Movement")
+	TMap<ETraversalMode, FTraversalParams> TraversalParams;
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Character Movement")
@@ -26,4 +29,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character Movement")
 	void SetCurrentTraversalMode(ETraversalMode NewTraversalMode);
 	
+	bool ApplyTraversalParams(ETraversalMode TraversalMode);
+	
+	virtual void InitializeComponent() override;
 };
