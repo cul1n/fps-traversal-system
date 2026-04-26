@@ -3,3 +3,12 @@
 
 #include "CustomCharacterMovementComponent.h"
 
+ETraversalMode UCustomCharacterMovementComponent::GetCurrentTraversalMode() const
+{
+	return CurrentTraversalMode;
+}
+
+void UCustomCharacterMovementComponent::SetCurrentTraversalMode(ETraversalMode NewTraversalMode)
+{
+	CurrentTraversalMode = NewTraversalMode;
+}
