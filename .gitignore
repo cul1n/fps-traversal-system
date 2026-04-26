@@ -1,5 +1,6 @@
 # IDE
 .idea/
+*.DotSettings.user
 
 # Visual Studio 2015 user specific files
 .vs/
