@@ -2,6 +2,7 @@
 
 
 #include "GameCharacter.h"
+#include "InputActionValue.h"
 
 #include "CustomCharacterMovementComponent.h"
 
@@ -31,4 +32,21 @@ void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void AGameCharacter::HandleMoveInput(const FInputActionValue& Value)
+{
+	const FVector2D Input = Value.Get<FVector2D>();
+	
+	if (!Controller)
+	{
+		return;
+	}
+	
+	const FRotator Rotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
+	const FVector Forward = Rotation.RotateVector(FVector::ForwardVector);
+	const FVector Right = Rotation.RotateVector(FVector::RightVector);
+	
+	AddMovementInput(Forward, Input.Y);
+	AddMovementInput(Right, Input.X);
 }

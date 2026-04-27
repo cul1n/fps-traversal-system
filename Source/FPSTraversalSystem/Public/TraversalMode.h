@@ -22,6 +22,7 @@ USTRUCT(BlueprintType)
 struct FTraversalParams
 {
 	GENERATED_BODY()
+
 public:
 	// TODO: define real params
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

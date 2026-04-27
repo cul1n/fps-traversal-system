@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "GameCharacter.generated.h"
 
+struct FInputActionValue;
 class UCustomCharacterMovementComponent;
 
 UCLASS()
@@ -30,5 +31,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	// Input methods
+	void HandleMoveInput(const FInputActionValue& Value);
 
 };
