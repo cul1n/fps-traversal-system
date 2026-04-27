@@ -28,6 +28,10 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* MoveAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UInputAction* LookAction;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -41,5 +45,6 @@ public:
 	
 	// Input methods
 	void HandleMoveInput(const FInputActionValue& Value);
+	void HandleLookInput(const FInputActionValue& Value);
 
 };

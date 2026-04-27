@@ -37,6 +37,7 @@ void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EIC->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGameCharacter::HandleMoveInput);
+		EIC->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGameCharacter::HandleLookInput);
 	}
 
 }
@@ -56,4 +57,17 @@ void AGameCharacter::HandleMoveInput(const FInputActionValue& Value)
 	
 	AddMovementInput(Forward, Input.Y);
 	AddMovementInput(Right, Input.X);
+}
+
+void AGameCharacter::HandleLookInput(const FInputActionValue& Value)
+{
+	const FVector2D Input = Value.Get<FVector2D>();
+
+	if (!Controller)
+	{
+		return;
+	}
+
+	AddControllerYawInput(Input.X);
+	AddControllerPitchInput(Input.Y);
 }
