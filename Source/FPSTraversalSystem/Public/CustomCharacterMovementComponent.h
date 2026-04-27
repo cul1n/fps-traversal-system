@@ -29,7 +29,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Character Movement")
 	void SetCurrentTraversalMode(ETraversalMode NewTraversalMode);
 	
+	UFUNCTION(BlueprintCallable, Category = "Character Movement")
+	void SetNextTraversalMode(ETraversalMode NewTraversalMode);
+	
+	void UpdateTraversalMode();
+	
 	bool ApplyTraversalParams(ETraversalMode TraversalMode);
 	
 	virtual void InitializeComponent() override;
+	
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 };

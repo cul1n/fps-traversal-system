@@ -13,6 +13,20 @@ void UCustomCharacterMovementComponent::SetCurrentTraversalMode(ETraversalMode N
 	CurrentTraversalMode = NewTraversalMode;
 }
 
+void UCustomCharacterMovementComponent::SetNextTraversalMode(ETraversalMode NewTraversalMode)
+{
+	NextTraversalMode = NewTraversalMode;
+}
+
+void UCustomCharacterMovementComponent::UpdateTraversalMode()
+{
+	if (NextTraversalMode != CurrentTraversalMode)
+	{
+		CurrentTraversalMode = NextTraversalMode;
+		ApplyTraversalParams(CurrentTraversalMode);
+	}
+}
+
 bool UCustomCharacterMovementComponent::ApplyTraversalParams(ETraversalMode TraversalMode)
 {
 	const FTraversalParams* Params = TraversalParams.Find(TraversalMode);
@@ -32,4 +46,11 @@ void UCustomCharacterMovementComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
 	ApplyTraversalParams(CurrentTraversalMode);
+}
+
+void UCustomCharacterMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	UpdateTraversalMode();
 }

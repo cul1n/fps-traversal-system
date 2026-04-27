@@ -2,6 +2,8 @@
 
 
 #include "GameCharacter.h"
+#include "EnhancedInputComponent.h"
+#include "InputAction.h"
 #include "InputActionValue.h"
 
 #include "CustomCharacterMovementComponent.h"
@@ -31,6 +33,11 @@ void AGameCharacter::Tick(float DeltaTime)
 void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	
+	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EIC->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGameCharacter::HandleMoveInput);
+	}
 
 }
 
