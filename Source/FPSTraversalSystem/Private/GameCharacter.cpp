@@ -38,6 +38,8 @@ void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	{
 		EIC->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGameCharacter::HandleMoveInput);
 		EIC->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGameCharacter::HandleLookInput);
+		EIC->BindAction(JumpAction, ETriggerEvent::Started, this, &AGameCharacter::Jump);
+		EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &AGameCharacter::StopJumping);
 	}
 
 }
