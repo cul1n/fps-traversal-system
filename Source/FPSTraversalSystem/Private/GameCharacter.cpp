@@ -38,8 +38,12 @@ void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	{
 		EIC->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGameCharacter::HandleMoveInput);
 		EIC->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGameCharacter::HandleLookInput);
+
 		EIC->BindAction(JumpAction, ETriggerEvent::Started, this, &AGameCharacter::Jump);
 		EIC->BindAction(JumpAction, ETriggerEvent::Completed, this, &AGameCharacter::StopJumping);
+
+		EIC->BindAction(SprintAction, ETriggerEvent::Started, this, &AGameCharacter::HandleSprintPressedInput);
+		EIC->BindAction(SprintAction, ETriggerEvent::Completed, this, &AGameCharacter::HandleSprintReleasedInput);
 	}
 
 }
@@ -72,4 +76,20 @@ void AGameCharacter::HandleLookInput(const FInputActionValue& Value)
 
 	AddControllerYawInput(Input.X);
 	AddControllerPitchInput(Input.Y);
+}
+
+void AGameCharacter::HandleSprintPressedInput(const FInputActionValue& Value)
+{
+	if (CustomMovementComponent)
+	{
+		CustomMovementComponent->SetNextTraversalMode(ETraversalMode::Sprint);
+	}
+}
+
+void AGameCharacter::HandleSprintReleasedInput(const FInputActionValue& Value)
+{
+	if (CustomMovementComponent)
+	{
+		CustomMovementComponent->SetNextTraversalMode(ETraversalMode::Walk);
+	}
 }
