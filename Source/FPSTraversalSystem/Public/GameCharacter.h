@@ -6,7 +6,10 @@
 #include "GameFramework/Character.h"
 #include "GameCharacter.generated.h"
 
+class UInputAction;
+class UInputMappingContext;
 class UCustomCharacterMovementComponent;
+struct FInputActionValue;
 
 UCLASS()
 class FPSTRAVERSALSYSTEM_API AGameCharacter : public ACharacter
@@ -20,6 +23,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Movement")
 	UCustomCharacterMovementComponent* CustomMovementComponent;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UInputMappingContext* DefaultMappingContext;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UInputAction* MoveAction;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UInputAction* LookAction;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -30,5 +42,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	
+	// Input methods
+	void HandleMoveInput(const FInputActionValue& Value);
+	void HandleLookInput(const FInputActionValue& Value);
 
 };

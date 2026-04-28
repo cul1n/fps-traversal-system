@@ -17,6 +17,3 @@ class AFPSTraversalSystemGameMode : public AGameModeBase
 public:
 	AFPSTraversalSystemGameMode();
 };
-
-
-
