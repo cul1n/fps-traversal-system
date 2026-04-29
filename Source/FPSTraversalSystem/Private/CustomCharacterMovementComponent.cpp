@@ -25,6 +25,12 @@ void UCustomCharacterMovementComponent::UpdateTraversalMode()
 		NextTraversalMode = ETraversalMode::Walk;
 	}
 
+	if (CurrentTraversalMode == ETraversalMode::Walk && NextTraversalMode == ETraversalMode::Sprint &&
+		CurrentStamina <= StaminaThreshold)
+	{
+		NextTraversalMode = ETraversalMode::Walk;
+	} 
+
 	if (NextTraversalMode != CurrentTraversalMode)
 	{
 		CurrentTraversalMode = NextTraversalMode;
@@ -61,7 +67,13 @@ void UCustomCharacterMovementComponent::UpdateStamina(float DeltaTime)
 	}
 	else if (CurrentTraversalMode == ETraversalMode::Walk)
 	{
-		CurrentStamina += DeltaTime * StaminaRate;
+		if (CurrentStamina <= StaminaThreshold)
+		{
+			CurrentStamina += DeltaTime * StaminaFatigueRate;	
+		} else
+		{
+			CurrentStamina += DeltaTime * StaminaRate;
+		}
 
 		if (CurrentStamina >= MaxStamina)
 		{
@@ -70,8 +82,15 @@ void UCustomCharacterMovementComponent::UpdateStamina(float DeltaTime)
 	}
 	
 	// TODO remove debug message, add stamina in UI
-	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, 
-		FString::Printf(TEXT("Stamina: %.2f"), CurrentStamina));
+	if (CurrentStamina < StaminaThreshold)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Red,
+			FString::Printf(TEXT("Stamina: %.2f"), CurrentStamina));
+	} else
+	{
+		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green,
+			FString::Printf(TEXT("Stamina: %.2f"), CurrentStamina));
+	}
 }
 
 void UCustomCharacterMovementComponent::InitializeComponent()

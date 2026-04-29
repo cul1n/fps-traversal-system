@@ -32,6 +32,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
 	float StaminaRate = 20.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
+	float StaminaThreshold = 30.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
+	float StaminaFatigueRate = 10.0f;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Character Movement")
 	ETraversalMode GetCurrentTraversalMode() const;
