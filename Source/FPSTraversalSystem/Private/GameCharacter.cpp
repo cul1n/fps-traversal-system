@@ -7,6 +7,7 @@
 #include "InputActionValue.h"
 
 #include "CustomCharacterMovementComponent.h"
+#include "Blueprint/UserWidget.h"
 
 AGameCharacter::AGameCharacter(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UCustomCharacterMovementComponent>(
@@ -19,6 +20,17 @@ AGameCharacter::AGameCharacter(const FObjectInitializer& ObjectInitializer)
 void AGameCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerHUDClass)
+	{
+		PlayerHUD = CreateWidget<UUserWidget>(PlayerController, PlayerHUDClass);
+
+		if (PlayerHUD)
+		{
+			PlayerHUD->AddToViewport();
+		}
+	}
 	
 }
 

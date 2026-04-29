@@ -18,6 +18,26 @@ void UCustomCharacterMovementComponent::SetNextTraversalMode(ETraversalMode NewT
 	NextTraversalMode = NewTraversalMode;
 }
 
+float UCustomCharacterMovementComponent::GetStaminaNormalized() const
+{
+	if (!MaxStamina)
+	{
+		return 0.0f;
+	}
+
+	return CurrentStamina / MaxStamina;
+}
+
+float UCustomCharacterMovementComponent::GetStaminaThresholdNormalized() const
+{
+	if (!MaxStamina)
+	{
+		return 0.0f;
+	}
+
+	return StaminaThreshold / MaxStamina;
+}
+
 void UCustomCharacterMovementComponent::UpdateTraversalMode()
 {
 	if (CurrentStamina == 0.0f && CurrentTraversalMode == ETraversalMode::Sprint)
@@ -81,7 +101,7 @@ void UCustomCharacterMovementComponent::UpdateStamina(float DeltaTime)
 		}
 	}
 	
-	// TODO remove debug message, add stamina in UI
+	// TODO remove debug message
 	if (CurrentStamina < StaminaThreshold)
 	{
 		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Red,
@@ -103,6 +123,8 @@ void UCustomCharacterMovementComponent::TickComponent(float DeltaTime, enum ELev
 	FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// TODO consider removing stamina drain on tick?
 	UpdateTraversalMode();
 	UpdateStamina(DeltaTime);
 }

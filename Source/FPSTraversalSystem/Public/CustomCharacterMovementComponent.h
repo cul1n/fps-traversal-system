@@ -47,6 +47,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Character Movement")
 	void SetNextTraversalMode(ETraversalMode NewTraversalMode);
+
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+	float GetStaminaNormalized() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+	float GetStaminaThresholdNormalized() const;
 	
 	void UpdateTraversalMode();
 	
