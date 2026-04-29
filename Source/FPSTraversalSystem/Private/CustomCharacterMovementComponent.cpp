@@ -20,6 +20,11 @@ void UCustomCharacterMovementComponent::SetNextTraversalMode(ETraversalMode NewT
 
 void UCustomCharacterMovementComponent::UpdateTraversalMode()
 {
+	if (CurrentStamina == 0.0f && CurrentTraversalMode == ETraversalMode::Sprint)
+	{
+		NextTraversalMode = ETraversalMode::Walk;
+	}
+
 	if (NextTraversalMode != CurrentTraversalMode)
 	{
 		CurrentTraversalMode = NextTraversalMode;
@@ -42,6 +47,33 @@ bool UCustomCharacterMovementComponent::ApplyTraversalParams(ETraversalMode Trav
 	return true;
 }
 
+void UCustomCharacterMovementComponent::UpdateStamina(float DeltaTime)
+{
+	if (CurrentTraversalMode == ETraversalMode::Sprint)
+	{
+		CurrentStamina -= DeltaTime * StaminaRate;
+
+		if (CurrentStamina <= 0.f)
+		{
+			CurrentStamina = 0.f;
+			NextTraversalMode = ETraversalMode::Walk;
+		}
+	}
+	else if (CurrentTraversalMode == ETraversalMode::Walk)
+	{
+		CurrentStamina += DeltaTime * StaminaRate;
+
+		if (CurrentStamina >= MaxStamina)
+		{
+			CurrentStamina = MaxStamina;
+		}
+	}
+	
+	// TODO remove debug message, add stamina in UI
+	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, 
+		FString::Printf(TEXT("Stamina: %.2f"), CurrentStamina));
+}
+
 void UCustomCharacterMovementComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
@@ -53,4 +85,5 @@ void UCustomCharacterMovementComponent::TickComponent(float DeltaTime, enum ELev
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	UpdateTraversalMode();
+	UpdateStamina(DeltaTime);
 }
