@@ -22,6 +22,22 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character Movement")
 	TMap<ETraversalMode, FTraversalParams> TraversalParams;
 
+	// Stamina properties
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
+	float MaxStamina = 100.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
+	float CurrentStamina = 100.0f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
+	float StaminaRate = 20.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
+	float StaminaThreshold = 30.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Stamina")
+	float StaminaFatigueRate = 10.0f;
+
 public:
 	UFUNCTION(BlueprintCallable, Category = "Character Movement")
 	ETraversalMode GetCurrentTraversalMode() const;
@@ -31,10 +47,18 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Character Movement")
 	void SetNextTraversalMode(ETraversalMode NewTraversalMode);
+
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+	float GetStaminaNormalized() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Stamina")
+	float GetStaminaThresholdNormalized() const;
 	
 	void UpdateTraversalMode();
 	
 	bool ApplyTraversalParams(ETraversalMode TraversalMode);
+
+	void UpdateStamina(float DeltaTime);
 	
 	virtual void InitializeComponent() override;
 	

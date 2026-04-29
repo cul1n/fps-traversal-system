@@ -18,8 +18,39 @@ void UCustomCharacterMovementComponent::SetNextTraversalMode(ETraversalMode NewT
 	NextTraversalMode = NewTraversalMode;
 }
 
+float UCustomCharacterMovementComponent::GetStaminaNormalized() const
+{
+	if (!MaxStamina)
+	{
+		return 0.0f;
+	}
+
+	return CurrentStamina / MaxStamina;
+}
+
+float UCustomCharacterMovementComponent::GetStaminaThresholdNormalized() const
+{
+	if (!MaxStamina)
+	{
+		return 0.0f;
+	}
+
+	return StaminaThreshold / MaxStamina;
+}
+
 void UCustomCharacterMovementComponent::UpdateTraversalMode()
 {
+	if (CurrentStamina == 0.0f && CurrentTraversalMode == ETraversalMode::Sprint)
+	{
+		NextTraversalMode = ETraversalMode::Walk;
+	}
+
+	if (CurrentTraversalMode == ETraversalMode::Walk && NextTraversalMode == ETraversalMode::Sprint &&
+		CurrentStamina <= StaminaThreshold)
+	{
+		NextTraversalMode = ETraversalMode::Walk;
+	} 
+
 	if (NextTraversalMode != CurrentTraversalMode)
 	{
 		CurrentTraversalMode = NextTraversalMode;
@@ -42,6 +73,46 @@ bool UCustomCharacterMovementComponent::ApplyTraversalParams(ETraversalMode Trav
 	return true;
 }
 
+void UCustomCharacterMovementComponent::UpdateStamina(float DeltaTime)
+{
+	if (CurrentTraversalMode == ETraversalMode::Sprint)
+	{
+		CurrentStamina -= DeltaTime * StaminaRate;
+
+		if (CurrentStamina <= 0.f)
+		{
+			CurrentStamina = 0.f;
+			NextTraversalMode = ETraversalMode::Walk;
+		}
+	}
+	else if (CurrentTraversalMode == ETraversalMode::Walk)
+	{
+		if (CurrentStamina <= StaminaThreshold)
+		{
+			CurrentStamina += DeltaTime * StaminaFatigueRate;	
+		} else
+		{
+			CurrentStamina += DeltaTime * StaminaRate;
+		}
+
+		if (CurrentStamina >= MaxStamina)
+		{
+			CurrentStamina = MaxStamina;
+		}
+	}
+	
+	// TODO remove debug message
+	if (CurrentStamina < StaminaThreshold)
+	{
+		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Red,
+			FString::Printf(TEXT("Stamina: %.2f"), CurrentStamina));
+	} else
+	{
+		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green,
+			FString::Printf(TEXT("Stamina: %.2f"), CurrentStamina));
+	}
+}
+
 void UCustomCharacterMovementComponent::InitializeComponent()
 {
 	Super::InitializeComponent();
@@ -52,5 +123,8 @@ void UCustomCharacterMovementComponent::TickComponent(float DeltaTime, enum ELev
 	FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// TODO consider removing stamina drain on tick?
 	UpdateTraversalMode();
+	UpdateStamina(DeltaTime);
 }

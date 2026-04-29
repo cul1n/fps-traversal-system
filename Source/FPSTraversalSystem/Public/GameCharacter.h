@@ -32,6 +32,18 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* LookAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UInputAction* JumpAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UInputAction* SprintAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PlayerHUDClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	UUserWidget* PlayerHUD;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -46,5 +58,7 @@ public:
 	// Input methods
 	void HandleMoveInput(const FInputActionValue& Value);
 	void HandleLookInput(const FInputActionValue& Value);
+	void HandleSprintPressedInput(const FInputActionValue& Value);
+	void HandleSprintReleasedInput(const FInputActionValue& Value);
 
 };
