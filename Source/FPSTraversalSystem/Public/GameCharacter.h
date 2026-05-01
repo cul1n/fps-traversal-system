@@ -38,6 +38,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* SprintAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UInputAction* CrouchAction;
+
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> PlayerHUDClass;
 
@@ -58,7 +61,11 @@ public:
 	// Input methods
 	void HandleMoveInput(const FInputActionValue& Value);
 	void HandleLookInput(const FInputActionValue& Value);
+
 	void HandleSprintPressedInput(const FInputActionValue& Value);
 	void HandleSprintReleasedInput(const FInputActionValue& Value);
+
+	void HandleCrouchPressedInput(const FInputActionValue& Value);
+	void HandleCrouchReleasedInput(const FInputActionValue& Value);
 
 };

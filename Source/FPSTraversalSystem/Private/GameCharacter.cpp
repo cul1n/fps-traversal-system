@@ -49,6 +49,7 @@ void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	if (UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EIC->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AGameCharacter::HandleMoveInput);
+
 		EIC->BindAction(LookAction, ETriggerEvent::Triggered, this, &AGameCharacter::HandleLookInput);
 
 		EIC->BindAction(JumpAction, ETriggerEvent::Started, this, &AGameCharacter::Jump);
@@ -56,6 +57,9 @@ void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 		EIC->BindAction(SprintAction, ETriggerEvent::Started, this, &AGameCharacter::HandleSprintPressedInput);
 		EIC->BindAction(SprintAction, ETriggerEvent::Completed, this, &AGameCharacter::HandleSprintReleasedInput);
+
+		EIC->BindAction(CrouchAction, ETriggerEvent::Started, this, &AGameCharacter::HandleCrouchPressedInput);
+		EIC->BindAction(CrouchAction, ETriggerEvent::Completed, this, &AGameCharacter::HandleCrouchReleasedInput);
 	}
 
 }
@@ -99,6 +103,22 @@ void AGameCharacter::HandleSprintPressedInput(const FInputActionValue& Value)
 }
 
 void AGameCharacter::HandleSprintReleasedInput(const FInputActionValue& Value)
+{
+	if (CustomMovementComponent)
+	{
+		CustomMovementComponent->SetNextTraversalMode(ETraversalMode::Walk);
+	}
+}
+
+void AGameCharacter::HandleCrouchPressedInput(const FInputActionValue& Value)
+{
+	if (CustomMovementComponent)
+	{
+		CustomMovementComponent->SetNextTraversalMode(ETraversalMode::Crouch);
+	}
+}
+
+void AGameCharacter::HandleCrouchReleasedInput(const FInputActionValue& Value)
 {
 	if (CustomMovementComponent)
 	{
