@@ -3,6 +3,8 @@
 
 #include "CustomCharacterMovementComponent.h"
 
+#include "GameFramework/Character.h"
+
 ETraversalMode UCustomCharacterMovementComponent::GetCurrentTraversalMode() const
 {
 	return CurrentTraversalMode;
@@ -38,6 +40,7 @@ float UCustomCharacterMovementComponent::GetStaminaThresholdNormalized() const
 	return StaminaThreshold / MaxStamina;
 }
 
+// TODO: consider refactoring this method
 void UCustomCharacterMovementComponent::UpdateTraversalMode()
 {
 	if (CurrentStamina == 0.0f && CurrentTraversalMode == ETraversalMode::Sprint)
@@ -49,13 +52,26 @@ void UCustomCharacterMovementComponent::UpdateTraversalMode()
 		CurrentStamina <= StaminaThreshold)
 	{
 		NextTraversalMode = ETraversalMode::Walk;
-	} 
-
-	if (NextTraversalMode != CurrentTraversalMode)
-	{
-		CurrentTraversalMode = NextTraversalMode;
-		ApplyTraversalParams(CurrentTraversalMode);
 	}
+
+	if (NextTraversalMode == CurrentTraversalMode)
+	{
+		return;
+	}
+
+	if (CharacterOwner)
+	{
+		if (NextTraversalMode == ETraversalMode::Crouch && IsMovingOnGround())
+		{
+			CharacterOwner->Crouch();
+		} else if (CurrentTraversalMode == ETraversalMode::Crouch)
+		{
+			CharacterOwner->UnCrouch();
+		}
+	}
+
+	CurrentTraversalMode = NextTraversalMode;
+	ApplyTraversalParams(CurrentTraversalMode);
 }
 
 bool UCustomCharacterMovementComponent::ApplyTraversalParams(ETraversalMode TraversalMode)
@@ -85,7 +101,7 @@ void UCustomCharacterMovementComponent::UpdateStamina(float DeltaTime)
 			NextTraversalMode = ETraversalMode::Walk;
 		}
 	}
-	else if (CurrentTraversalMode == ETraversalMode::Walk)
+	else if (CurrentTraversalMode == ETraversalMode::Walk || CurrentTraversalMode == ETraversalMode::Crouch)
 	{
 		if (CurrentStamina <= StaminaThreshold)
 		{
@@ -99,17 +115,6 @@ void UCustomCharacterMovementComponent::UpdateStamina(float DeltaTime)
 		{
 			CurrentStamina = MaxStamina;
 		}
-	}
-	
-	// TODO remove debug message
-	if (CurrentStamina < StaminaThreshold)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Red,
-			FString::Printf(TEXT("Stamina: %.2f"), CurrentStamina));
-	} else
-	{
-		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green,
-			FString::Printf(TEXT("Stamina: %.2f"), CurrentStamina));
 	}
 }
 
