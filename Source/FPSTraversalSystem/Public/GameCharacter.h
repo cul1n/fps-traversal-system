@@ -19,8 +19,8 @@ class FPSTRAVERSALSYSTEM_API AGameCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AGameCharacter(const FObjectInitializer& ObjectInitializer);
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Movement")
+
+	UPROPERTY(Transient)
 	UCustomCharacterMovementComponent* CustomMovementComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
@@ -37,6 +37,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")
 	UInputAction* SprintAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input")
+	UInputAction* CrouchAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UUserWidget> PlayerHUDClass;
@@ -58,7 +61,11 @@ public:
 	// Input methods
 	void HandleMoveInput(const FInputActionValue& Value);
 	void HandleLookInput(const FInputActionValue& Value);
+
 	void HandleSprintPressedInput(const FInputActionValue& Value);
 	void HandleSprintReleasedInput(const FInputActionValue& Value);
+
+	void HandleCrouchPressedInput(const FInputActionValue& Value);
+	void HandleCrouchReleasedInput(const FInputActionValue& Value);
 
 };

@@ -3,9 +3,33 @@
 
 #include "CustomCharacterMovementComponent.h"
 
+#include "GameFramework/Character.h"
+
 ETraversalMode UCustomCharacterMovementComponent::GetCurrentTraversalMode() const
 {
 	return CurrentTraversalMode;
+}
+
+bool UCustomCharacterMovementComponent::IsSliding() const
+{
+	return CurrentTraversalMode == ETraversalMode::Slide;
+}
+
+void UCustomCharacterMovementComponent::RequestCrouch()
+{
+	if (!IsMovingOnGround())
+	{
+		return;
+	}
+
+	if (CurrentTraversalMode == ETraversalMode::Sprint)
+	{
+		NextTraversalMode = ETraversalMode::Slide;
+	}
+	else
+	{
+		NextTraversalMode = ETraversalMode::Crouch;
+	}
 }
 
 void UCustomCharacterMovementComponent::SetCurrentTraversalMode(ETraversalMode NewTraversalMode)
@@ -40,36 +64,66 @@ float UCustomCharacterMovementComponent::GetStaminaThresholdNormalized() const
 
 void UCustomCharacterMovementComponent::UpdateTraversalMode()
 {
-	if (CurrentStamina == 0.0f && CurrentTraversalMode == ETraversalMode::Sprint)
+	// If no change in Traversal mode, no need to apply new params
+	if (!CharacterOwner || NextTraversalMode == CurrentTraversalMode)
 	{
-		NextTraversalMode = ETraversalMode::Walk;
+		return;
 	}
 
-	if (CurrentTraversalMode == ETraversalMode::Walk && NextTraversalMode == ETraversalMode::Sprint &&
-		CurrentStamina <= StaminaThreshold)
+	switch (CurrentTraversalMode)
 	{
-		NextTraversalMode = ETraversalMode::Walk;
-	} 
-
-	if (NextTraversalMode != CurrentTraversalMode)
-	{
-		CurrentTraversalMode = NextTraversalMode;
-		ApplyTraversalParams(CurrentTraversalMode);
+		case ETraversalMode::Walk:
+			if (NextTraversalMode == ETraversalMode::Sprint && CurrentStamina <= StaminaThreshold)
+			{
+				return;
+			} 
+			if (NextTraversalMode == ETraversalMode::Crouch && IsMovingOnGround())
+			{
+				CharacterOwner->Crouch();
+			}
+			break;
+		case ETraversalMode::Sprint:
+			if (NextTraversalMode == ETraversalMode::Slide && IsMovingOnGround())
+			{
+				CharacterOwner->Crouch();
+				EnterSlide();
+			}
+			break;
+		case ETraversalMode::Crouch:
+			if (NextTraversalMode != ETraversalMode::Slide)
+			{
+				CharacterOwner->UnCrouch();
+			}
+			break;
+		case ETraversalMode::Slide:
+			// While in the Slide mode, the character can't switch modes till it finishes the slide by crouching
+			if (NextTraversalMode != ETraversalMode::Crouch)
+			{
+				return;	
+			}
+			break;
+		default:
+			break;
 	}
+
+	CurrentTraversalMode = NextTraversalMode;
+	ApplyTraversalParams(CurrentTraversalMode);
 }
 
 bool UCustomCharacterMovementComponent::ApplyTraversalParams(ETraversalMode TraversalMode)
 {
 	const FTraversalParams* Params = TraversalParams.Find(TraversalMode);
-	
+
 	if (!Params)
 	{
 		return false;
 	}
-	
+
 	MaxWalkSpeed = Params->MaxWalkSpeed;
 	MaxAcceleration = Params->MaxAcceleration;
-	
+	GroundFriction = Params->GroundFriction;
+	BrakingDecelerationWalking = Params->BrakingDecelerationWalking;
+
 	return true;
 }
 
@@ -85,12 +139,13 @@ void UCustomCharacterMovementComponent::UpdateStamina(float DeltaTime)
 			NextTraversalMode = ETraversalMode::Walk;
 		}
 	}
-	else if (CurrentTraversalMode == ETraversalMode::Walk)
+	else
 	{
 		if (CurrentStamina <= StaminaThreshold)
 		{
 			CurrentStamina += DeltaTime * StaminaFatigueRate;	
-		} else
+		}
+		else
 		{
 			CurrentStamina += DeltaTime * StaminaRate;
 		}
@@ -99,17 +154,6 @@ void UCustomCharacterMovementComponent::UpdateStamina(float DeltaTime)
 		{
 			CurrentStamina = MaxStamina;
 		}
-	}
-	
-	// TODO remove debug message
-	if (CurrentStamina < StaminaThreshold)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Red,
-			FString::Printf(TEXT("Stamina: %.2f"), CurrentStamina));
-	} else
-	{
-		GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green,
-			FString::Printf(TEXT("Stamina: %.2f"), CurrentStamina));
 	}
 }
 
@@ -124,7 +168,43 @@ void UCustomCharacterMovementComponent::TickComponent(float DeltaTime, enum ELev
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// TODO consider removing stamina drain on tick?
+	// TODO consider removing stamina drain on tick
 	UpdateTraversalMode();
 	UpdateStamina(DeltaTime);
+	
+	if (CurrentTraversalMode == ETraversalMode::Slide)
+	{
+		UpdateSlide(DeltaTime);
+	}
+}
+
+void UCustomCharacterMovementComponent::EnterSlide()
+{
+	SlideElapsedTime = 0.f;
+	SlideDirection = Velocity.GetSafeNormal();
+
+	if (SlideDirection.IsNearlyZero())
+	{
+		SlideDirection = CharacterOwner->GetActorForwardVector().GetSafeNormal2D();
+	}
+
+	// TODO: consider moving bool in params?
+	CharacterOwner->bUseControllerRotationYaw = false;
+
+	const float SlideStartSpeed = FMath::Clamp(Velocity.Size2D(), MinSlideStartSpeed, MaxSlideStartSpeed);
+	Velocity = SlideDirection * SlideStartSpeed;
+}
+
+void UCustomCharacterMovementComponent::UpdateSlide(float DeltaTime)
+{
+	SlideElapsedTime += DeltaTime;
+
+	float const NewSlideSpeed = FMath::Max(Velocity.Size2D() - SlideDeceleration * DeltaTime, 0.f);
+	Velocity = SlideDirection * NewSlideSpeed;
+	
+	if (NewSlideSpeed < MinSlideSpeed || SlideElapsedTime > MaxSlideDuration)
+	{
+		CharacterOwner->bUseControllerRotationYaw = true;
+		SetNextTraversalMode(ETraversalMode::Crouch);
+	}
 }
