@@ -12,10 +12,10 @@
 UENUM(BlueprintType)
 enum class ETraversalMode : uint8
 {
-	Idle,
 	Walk,
 	Sprint,
-	Crouch
+	Crouch,
+	Slide
 };
 
 USTRUCT(BlueprintType)
@@ -27,7 +27,13 @@ public:
 	// TODO: define real params
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxWalkSpeed = 500.f;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxAcceleration = 2048.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement")
+	float GroundFriction = 8.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement")
+	float BrakingDecelerationWalking = 2048.f;
 };

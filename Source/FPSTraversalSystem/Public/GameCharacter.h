@@ -19,8 +19,8 @@ class FPSTRAVERSALSYSTEM_API AGameCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AGameCharacter(const FObjectInitializer& ObjectInitializer);
-	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Character Movement")
+
+	UPROPERTY(Transient)
 	UCustomCharacterMovementComponent* CustomMovementComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input")

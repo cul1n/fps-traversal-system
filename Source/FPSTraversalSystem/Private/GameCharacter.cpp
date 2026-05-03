@@ -66,13 +66,12 @@ void AGameCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 void AGameCharacter::HandleMoveInput(const FInputActionValue& Value)
 {
-	const FVector2D Input = Value.Get<FVector2D>();
-	
 	if (!Controller)
 	{
 		return;
 	}
-	
+
+	const FVector2D Input = Value.Get<FVector2D>();
 	const FRotator Rotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
 	const FVector Forward = Rotation.RotateVector(FVector::ForwardVector);
 	const FVector Right = Rotation.RotateVector(FVector::RightVector);
@@ -83,15 +82,20 @@ void AGameCharacter::HandleMoveInput(const FInputActionValue& Value)
 
 void AGameCharacter::HandleLookInput(const FInputActionValue& Value)
 {
-	const FVector2D Input = Value.Get<FVector2D>();
-
 	if (!Controller)
 	{
 		return;
 	}
 
-	AddControllerYawInput(Input.X);
+	const FVector2D Input = Value.Get<FVector2D>();
 	AddControllerPitchInput(Input.Y);
+
+	if (CustomMovementComponent  && CustomMovementComponent->IsSliding())
+	{
+		return;
+	}
+
+	AddControllerYawInput(Input.X);
 }
 
 void AGameCharacter::HandleSprintPressedInput(const FInputActionValue& Value)
@@ -114,7 +118,7 @@ void AGameCharacter::HandleCrouchPressedInput(const FInputActionValue& Value)
 {
 	if (CustomMovementComponent)
 	{
-		CustomMovementComponent->SetNextTraversalMode(ETraversalMode::Crouch);
+		CustomMovementComponent->RequestCrouch();
 	}
 }
 
