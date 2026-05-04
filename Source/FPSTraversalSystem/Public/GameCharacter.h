@@ -68,4 +68,8 @@ public:
 	void HandleCrouchPressedInput(const FInputActionValue& Value);
 	void HandleCrouchReleasedInput(const FInputActionValue& Value);
 
+	virtual void Jump() override;
+
+	FCollisionQueryParams GetIgnoreCharacterParams() const;
+
 };
