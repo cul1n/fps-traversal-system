@@ -90,7 +90,7 @@ void AGameCharacter::HandleLookInput(const FInputActionValue& Value)
 	const FVector2D Input = Value.Get<FVector2D>();
 	AddControllerPitchInput(Input.Y);
 
-	if (CustomMovementComponent  && CustomMovementComponent->IsSliding())
+	if (CustomMovementComponent  && (CustomMovementComponent->IsSliding() || CustomMovementComponent->IsMantling()))
 	{
 		return;
 	}
@@ -128,4 +128,26 @@ void AGameCharacter::HandleCrouchReleasedInput(const FInputActionValue& Value)
 	{
 		CustomMovementComponent->SetNextTraversalMode(ETraversalMode::Walk);
 	}
+}
+
+void AGameCharacter::Jump()
+{
+	if (CustomMovementComponent && CustomMovementComponent->CanMantle())
+	{
+		return;
+	}
+
+	Super::Jump();
+}
+
+FCollisionQueryParams AGameCharacter::GetIgnoreCharacterParams() const
+{
+	FCollisionQueryParams Params;
+
+	TArray<AActor*> CharacterChildren;
+	GetAllChildActors(CharacterChildren);
+	Params.AddIgnoredActors(CharacterChildren);
+	Params.AddIgnoredActor(this);
+
+	return Params;
 }

@@ -5,17 +5,14 @@
 #include "CoreMinimal.h"
 #include "TraversalMode.generated.h"
 
-/**
- * TODO: add description for adding new movement modes
- */
-
 UENUM(BlueprintType)
 enum class ETraversalMode : uint8
 {
 	Walk,
 	Sprint,
 	Crouch,
-	Slide
+	Slide,
+	Mantle
 };
 
 USTRUCT(BlueprintType)
@@ -24,7 +21,6 @@ struct FTraversalParams
 	GENERATED_BODY()
 
 public:
-	// TODO: define real params
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float MaxWalkSpeed = 500.f;
 
@@ -36,4 +32,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Movement")
 	float BrakingDecelerationWalking = 2048.f;
+};
+
+USTRUCT()
+struct FMantleData
+{
+	GENERATED_BODY()
+
+	bool bIsVault = false;
+	bool bInProgress = false;
+	FVector StartLocation = FVector::ZeroVector;
+	FVector TargetLocation = FVector::ZeroVector;
 };
